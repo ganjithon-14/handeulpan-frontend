@@ -1,5 +1,9 @@
 function App() {
-    return <h1>한 들판</h1>;
+    return (
+        <main className="flex min-h-dvh items-center justify-center bg-cream">
+            <h1 className="font-batang text-3xl font-bold text-primary">한 들판</h1>
+        </main>
+    );
 }
 
 export default App;
