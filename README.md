@@ -65,8 +65,9 @@ PR을 올리기 전에 `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm
 
 | 변수 | 설명 |
 |---|---|
-| `VITE_API_URL` | 백엔드 API 서버 주소 (기본값 `https://handeulpan.p-e.kr`) |
 | `VITE_USE_MOCK` | 목업 API 사용 여부 (`true`/`false`) |
+
+API는 같은 주소의 `/api/...`로 부릅니다. 로컬은 Vite 프록시(`vite.config.ts`), 배포는 Vercel 리라이트(`vercel.json`)가 백엔드 `https://handeulpan.p-e.kr`로 넘겨서 CORS 설정이 필요 없습니다.
 
 > `VITE_` 접두사가 붙은 값은 브라우저 번들에 포함되므로, 비밀 키는 절대 넣지 않습니다.
 >
@@ -75,6 +76,8 @@ PR을 올리기 전에 `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm
 ### 목업 모드
 
 `VITE_USE_MOCK=true`면 서버에 요청하지 않고 `src/api/mock/`이 백엔드 `docs/api` 예시 응답을 돌려줍니다. 서버가 없거나 API가 아직 안 나왔을 때 화면을 만들 수 있습니다.
+
+백엔드 서버는 항상 켜져 있지 않습니다. 평소 개발과 Vercel 프리뷰는 목업 모드로 하고, 실서버 테스트는 서버가 켜진 시간에만 합니다. (`curl https://handeulpan.p-e.kr/api/pastures`가 401이면 켜져 있음)
 
 - 토큰 없이 로그인이 필요한 API를 부르면 `401 INVALID_DEVICE_TOKEN` → 로그인 화면으로 이동
 - 들판 id `mock-full`: 미리보기는 가득 찬 들판, 합류는 `409 PASTURE_FULL`
