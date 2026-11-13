@@ -1,4 +1,4 @@
-// 백엔드 docs/api 기준 요청·응답 타입 (회원 전용 PR #20 반영).
+// 백엔드 docs/api 기준 요청·응답 타입 (회원 전용 PR #21 반영).
 // 필드가 바뀌면 백엔드 문서를 먼저 확인하고 여기를 고친다.
 
 export const WOOL_COLORS = ['CREAM', 'PINK', 'YELLOW', 'MINT', 'SKY', 'LAVENDER'] as const;
@@ -10,7 +10,6 @@ export type Distance = 'CENTER' | 'WALK' | 'EDGE';
 // ── 인증 (auth.md) ──
 
 export interface SignupRequest {
-    nickname: string;
     email: string;
     password: string;
 }
