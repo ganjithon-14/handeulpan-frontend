@@ -55,6 +55,7 @@ pnpm dev
 | `pnpm format` | Prettier로 전체 포맷 |
 | `pnpm format:check` | 포맷이 맞는지 검사만 |
 | `pnpm typecheck` | TypeScript 타입 검사 |
+| `pnpm generate-pwa-assets` | `public/logo.svg`로 PWA 아이콘·파비콘 다시 만들기 (로고가 바뀌었을 때만) |
 
 PR을 올리기 전에 `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm build`가 모두 통과하는지 확인합니다.
 
@@ -70,6 +71,15 @@ PR을 올리기 전에 `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm
 > `VITE_` 접두사가 붙은 값은 브라우저 번들에 포함되므로, 비밀 키는 절대 넣지 않습니다.
 >
 > 새 변수를 추가하면 `.env.example`과 `src/vite-env.d.ts`의 타입도 같이 고칩니다.
+
+### 목업 모드
+
+`VITE_USE_MOCK=true`면 서버에 요청하지 않고 `src/api/mock/`이 백엔드 `docs/api` 예시 응답을 돌려줍니다. 서버가 없거나 API가 아직 안 나왔을 때 화면을 만들 수 있습니다.
+
+- 토큰 없이 로그인이 필요한 API를 부르면 `401 INVALID_DEVICE_TOKEN` → 로그인 화면으로 이동
+- 들판 id `mock-full`: 미리보기는 가득 찬 들판, 합류는 `409 PASTURE_FULL`
+- 내 양(id 1)에게 목도리 보내기: `400 SELF`
+- 말풍선에 `죽고싶`이 들어 있으면 위험 키워드 응답(`posted: false, flagged: true`)
 
 ## 담당 영역
 
