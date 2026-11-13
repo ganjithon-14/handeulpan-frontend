@@ -8,11 +8,12 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
 
 /**
  * 모든 API 요청이 거치는 axios 인스턴스.
+ * - baseURL이 없다: 같은 주소의 /api/...를 부르면 Vercel 리라이트(배포)와 Vite 프록시(로컬)가
+ *   백엔드로 넘긴다. 브라우저 입장에선 같은 출처라 CORS 허용이 필요 없다.
  * - 인증은 쿠키가 아니라 헤더라서 withCredentials를 켜지 않는다.
  * - 목업 모드면 실제 서버 대신 mockAdapter가 docs 예시 응답을 돌려준다.
  */
 export const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
     timeout: 10_000,
     ...(USE_MOCK && { adapter: mockAdapter }),
 });
