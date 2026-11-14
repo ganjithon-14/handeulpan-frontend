@@ -17,6 +17,10 @@
     --color-primary-disabled: #b9aa98; /* 주 버튼 비활성 (들판 만들기 '들판 만들기' 버튼) */
     --color-line: #e8dccb; /* 입력창 테두리 */
     --color-placeholder: #b0b0a7; /* 입력창 안내문 */
+    --color-counter: #a1a198; /* 입력창 글자 수 (0/12) */
+    --color-subtle: #91928a; /* 동의 카드 설명 */
+    --color-soft: #f7f3ec; /* 보조 버튼 (링크 공유 '링크 복사') */
+    --color-leaf: #547b47; /* 초록 소제목 (링크 공유 '함께할수록…', 합류 들판 이름) */
 
     /* 털 색 (woolColor: 양 만들기 > 털 색 고르기) */
     --color-wool-cream: #f5e7c9;
