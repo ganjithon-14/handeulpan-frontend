@@ -45,7 +45,7 @@ export default defineConfig({
                 navigateFallback: '/index.html',
                 // 미리 받아 둘 파일. 폰트(woff2)는 서브셋 조각이 수백 개(약 13MB)라 빼고,
                 // 아래 runtimeCaching으로 실제로 쓴 조각만 캐시한다.
-                // API는 다른 도메인이라 캐시하지 않는다. 항상 서버의 최신 거리 값을 써야 한다.
+                // /api 응답은 캐시하지 않는다(runtimeCaching에 없음). 항상 서버의 최신 거리 값을 써야 한다.
                 globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
                 runtimeCaching: [
                     {
@@ -60,6 +60,12 @@ export default defineConfig({
             },
         }),
     ],
+    // 로컬에서도 배포(vercel.json 리라이트)와 똑같이 /api를 백엔드로 넘긴다.
+    server: {
+        proxy: {
+            '/api': { target: 'https://handeulpan.p-e.kr', changeOrigin: true },
+        },
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
