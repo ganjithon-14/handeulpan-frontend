@@ -1,6 +1,6 @@
-import { PagePlaceholder } from '@/pages/PagePlaceholder';
+import { AuthForm } from '@/features/auth/AuthForm';
 
-/** `/login` 로그인. 토큰이 무효가 되면 API 클라이언트가 이 화면으로 보낸다 (4번 이슈) */
+/** `/login` 로그인. 토큰이 무효가 되면 API 클라이언트가 `?next=`를 붙여 이 화면으로 보낸다 */
 export function LoginPage() {
-    return <PagePlaceholder title="로그인" />;
+    return <AuthForm mode="login" />;
 }
