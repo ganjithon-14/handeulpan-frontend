@@ -1,5 +1,6 @@
 import { useInviteLink } from '@/features/invite/useInviteLink';
 import { BottomSheet } from '@/shared/ui/BottomSheet';
+import { SheetNotice } from '@/shared/ui/SheetNotice';
 
 /** 친구 초대 시트 (Figma 199:13740): 탭바 '초대'를 누르면 뜬다 */
 export function InviteSheet({
@@ -11,7 +12,7 @@ export function InviteSheet({
     open: boolean;
     onClose: () => void;
 }) {
-    const { inviteUrl, copied, notice, copyFailed, copyLink } = useInviteLink(pastureId);
+    const { inviteUrl, copied, notice, copyLink } = useInviteLink(pastureId);
 
     // 폰이면 공유창(카카오톡 등)을 띄우고, 공유창이 없는 브라우저면 복사로 대신한다
     async function shareLink() {
@@ -45,16 +46,14 @@ export function InviteSheet({
 
             <div className="mt-[30px] flex flex-col gap-2">
                 <div className="relative flex h-[60px] items-center gap-3 rounded-2xl border border-line bg-[#fffcf4] px-4">
-                    {/* 링크 칸 위에 떴다가 사라지는 안내. absolute라서 시트 높이가 바뀌지 않는다 */}
-                    <p
-                        role="status"
-                        className={`pointer-events-none absolute bottom-full left-1/2 mb-2 w-max max-w-full -translate-x-1/2 rounded-full bg-black/75 px-3 py-1.5 text-center text-xs text-white transition-opacity duration-300 ${notice ? 'opacity-100' : 'opacity-0'}`}
-                    >
-                        {/* 사라지는 동안에도 문구가 바뀌지 않게 notice가 비면 마지막 결과로 */}
-                        {notice === 'failed' || (!notice && copyFailed)
-                            ? '복사가 안 됐어요. 링크를 길게 눌러 복사해 주세요.'
-                            : '링크를 복사했어요'}
-                    </p>
+                    <SheetNotice
+                        text={
+                            notice &&
+                            (notice === 'failed'
+                                ? '복사가 안 됐어요. 링크를 길게 눌러 복사해 주세요.'
+                                : '링크를 복사했어요')
+                        }
+                    />
                     <span className="min-w-0 flex-1 truncate font-dodum text-[11px] leading-[16.5px] text-black select-all">
                         {inviteUrl.replace(/^https?:\/\//, '')}
                     </span>
