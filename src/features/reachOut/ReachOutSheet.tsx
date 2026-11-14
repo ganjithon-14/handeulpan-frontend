@@ -4,6 +4,7 @@ import { ERROR_CODE, toApiError } from '@/api/errors';
 import { sendScarf } from '@/api/sheep';
 import type { PastureSheep } from '@/api/types';
 import { BottomSheet } from '@/shared/ui/BottomSheet';
+import { SheetNotice } from '@/shared/ui/SheetNotice';
 import { useCopy } from '@/shared/useCopy';
 import { useFlash } from '@/shared/useFlash';
 
@@ -12,18 +13,6 @@ const GREETINGS = [
     '요즘 어떻게 지내? 갑자기 생각나서 연락해봤어.',
     '바쁘면 답장 천천히 해도 돼. 그냥 안부 궁금했어.',
 ];
-
-/** 시트 안에 떴다 사라지는 안내. absolute라서 시트 높이가 바뀌지 않는다 */
-function Toast({ text }: { text: string | null }) {
-    return (
-        <p
-            role="status"
-            className={`pointer-events-none absolute bottom-full left-1/2 mb-2 w-max max-w-full -translate-x-1/2 rounded-full bg-black/75 px-3 py-1.5 text-center text-xs text-white transition-opacity duration-300 ${text ? 'opacity-100' : 'opacity-0'}`}
-        >
-            {text}
-        </p>
-    );
-}
 
 /**
  * 다가가기 시트 (Figma 183:9687): 멀어진 친구에게 목도리를 보내거나, 안부 문장을 복사해
@@ -49,17 +38,17 @@ export function ReachOutSheet({
         try {
             await sendScarf(sheepId);
             onScarfSent(sheepId);
-            sendNotice.flash('목도리를 보냈어요');
+            sendNotice.flash('목도리를 보냈어요.');
         } catch (caught) {
             const { code } = toApiError(caught);
             if (code === ERROR_CODE.ALREADY_SENT_TODAY) {
                 // 다른 기기에서 이미 보냈을 수 있다. 화면도 보낸 상태로 맞춘다
                 onScarfSent(sheepId);
-                sendNotice.flash('오늘은 이미 목도리를 보냈어요');
+                sendNotice.flash('오늘은 이미 목도리를 보냈어요.');
             } else if (code === ERROR_CODE.SELF) {
-                sendNotice.flash('내 양에게는 목도리를 보낼 수 없어요');
+                sendNotice.flash('내 양에게는 목도리를 보낼 수 없어요.');
             } else {
-                sendNotice.flash('보내지 못했어요. 잠시 후 다시 시도해 주세요');
+                sendNotice.flash('보내지 못했어요. 잠시 후 다시 시도해 주세요.');
             }
         } finally {
             setSending(false);
@@ -87,7 +76,16 @@ export function ReachOutSheet({
                     />
 
                     <div className="relative mt-[30px]">
-                        <Toast text={sendNotice.notice} />
+                        {/* 보내기·복사 결과 모두 친구 초대 시트처럼 양과 아래 칸 사이에 띄운다 */}
+                        <SheetNotice
+                            text={
+                                (copyNotice &&
+                                    (copyNotice === 'failed'
+                                        ? '복사가 안 됐어요. 문장을 길게 눌러 복사해 주세요.'
+                                        : '문장을 복사했어요')) ||
+                                sendNotice.notice
+                            }
+                        />
                         <button
                             type="button"
                             disabled={sending || sheep.sentScarfToday}
@@ -108,15 +106,7 @@ export function ReachOutSheet({
                         <span aria-hidden className="h-px flex-1 bg-primary" />
                     </div>
 
-                    <div className="relative mt-[11px]">
-                        <Toast
-                            text={
-                                copyNotice &&
-                                (copyNotice === 'failed'
-                                    ? '복사가 안 됐어요. 문장을 길게 눌러 복사해 주세요'
-                                    : '문장을 복사했어요')
-                            }
-                        />
+                    <div className="mt-[11px]">
                         <ul className="flex flex-col gap-2">
                             {GREETINGS.map((text) => (
                                 <li
