@@ -9,14 +9,67 @@
 
 | 영역 | 선택 |
 |---|---|
-| 프레임워크 | React + Vite |
+| 프레임워크 | React + Vite (TypeScript) |
 | 앱 형태 | PWA (설치 없이 링크로 입장) |
+| 스타일 | Tailwind CSS (Vite 플러그인) |
 | 상태 관리 | Zustand |
 | 들판 렌더링 | SVG·이미지 + CSS transition (필요하면 Framer Motion) |
 | 인증 | 기기 토큰(UUID)을 브라우저에 저장, 요청 헤더로 전송 |
 | 배포 | Vercel (`main` → 운영) |
 
 > 프로젝트 초기 세팅(Vite·PWA·라우팅)은 FE-B가 이 레포에 올립니다.
+
+## 실행 방법
+
+### 요구 사항
+
+- Node.js 24 (`.nvmrc`)
+- pnpm 10 (`package.json`의 `packageManager`)
+
+pnpm이 없다면 Node에 들어 있는 corepack으로 켭니다.
+
+```bash
+corepack enable
+```
+
+### 설치 및 실행
+
+```bash
+git clone https://github.com/ganjithon-14/handeulpan-frontend
+cd handeulpan-frontend
+pnpm install
+cp .env.example .env
+pnpm dev
+```
+
+브라우저에서 `http://localhost:5173`을 엽니다. 화면은 393×852(Figma 기준)에 맞춰 만들므로, 개발자 도구의 모바일 화면으로 확인합니다.
+
+### 스크립트
+
+| 명령 | 설명 |
+|---|---|
+| `pnpm dev` | 개발 서버 실행 |
+| `pnpm build` | 타입 검사 후 `dist/`로 빌드 |
+| `pnpm preview` | 빌드 결과 미리 보기 |
+| `pnpm lint` | ESLint 검사 |
+| `pnpm format` | Prettier로 전체 포맷 |
+| `pnpm format:check` | 포맷이 맞는지 검사만 |
+| `pnpm typecheck` | TypeScript 타입 검사 |
+
+PR을 올리기 전에 `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm build`가 모두 통과하는지 확인합니다.
+
+## 환경 변수
+
+민감 정보는 저장소에 올리지 않습니다. `.env.example`을 복사해 프로젝트 루트에 `.env`(git 제외)를 만들어 설정하세요.
+
+| 변수 | 설명 |
+|---|---|
+| `VITE_API_URL` | 백엔드 API 서버 주소 (기본값 `https://handeulpan.p-e.kr`) |
+| `VITE_USE_MOCK` | 목업 API 사용 여부 (`true`/`false`) |
+
+> `VITE_` 접두사가 붙은 값은 브라우저 번들에 포함되므로, 비밀 키는 절대 넣지 않습니다.
+>
+> 새 변수를 추가하면 `.env.example`과 `src/vite-env.d.ts`의 타입도 같이 고칩니다.
 
 ## 담당 영역
 
@@ -27,6 +80,26 @@
 | 공동 | 둘 다 | `src/shared/`, `public/assets/` | 공통 컴포넌트, 디자인 에셋 |
 
 폴더 이름은 프로젝트 세팅 때 바뀌면 이 표도 같이 고쳐 주세요. 이름 규칙은 [용어표](https://github.com/ganjithon-14/.github/blob/main/CONTRIBUTING.md#5-용어-코드-이름-통일)를 따릅니다.
+
+## 코드 스타일
+
+- **Prettier**와 **ESLint**(flat config)를 사용하고, 둘이 겹치는 규칙은 `eslint-config-prettier`로 끕니다.
+- 세미콜론 사용, 싱글 쿼트 사용, 들여쓰기 4칸, 한 줄 100자, 여러 줄일 때 끝에 쉼표
+- Tailwind 클래스 순서는 `prettier-plugin-tailwindcss`가 자동으로 정렬합니다.
+- 줄바꿈은 LF로 고정합니다. (`.gitattributes`, `.editorconfig`)
+- import는 `@/`(= `src/`) 경로 별칭을 사용합니다. 예) `import App from '@/App.tsx'`
+- 컴포넌트는 `PascalCase`, 함수·변수는 `camelCase`, 상수는 `UPPER_SNAKE_CASE`
+- 커스텀 훅은 `use`로 시작합니다. (예: `useSheepPosition`)
+- 색상·폰트는 `src/index.css`의 `@theme` 토큰을 씁니다. 임의 색(`bg-[#604620]`)은 쓰지 않습니다.
+
+| 토큰 | 클래스 예 | 값 |
+|---|---|---|
+| 주 버튼 갈색 | `bg-primary` | `#604620` |
+| 크림 배경 | `bg-cream` | `#fffdf8` |
+| 털 색 (`woolColor`) | `bg-wool-cream` `bg-wool-pink` `bg-wool-yellow` `bg-wool-mint` `bg-wool-sky` `bg-wool-lavender` | `#f5e7c9` `#f3c8c7` `#f1d98b` `#b9d9c3` `#bbd8de` `#cbc4db` |
+| 폰트 | `font-sans`(기본) `font-batang` `font-dodum` | Pretendard, 고운바탕, 고운돋움 |
+
+VS Code를 쓴다면 추천 확장(ESLint, Prettier, Tailwind CSS IntelliSense, EditorConfig)을 설치하면 저장할 때 자동으로 포맷됩니다.
 
 ## 브랜치
 

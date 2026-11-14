@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+/* 폰트: CDN 대신 npm 패키지에서 불러온다. */
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+@import '@fontsource/gowun-batang/400.css';
+@import '@fontsource/gowun-batang/700.css';
+@import '@fontsource/gowun-dodum/400.css';
+
+/*
+ * 디자인 토큰 (Figma KXTL4t346wq1zCMwK48Yco, 393×852 화면 기준)
+ * 사용 예: bg-primary, bg-cream, bg-wool-mint, font-batang
+ */
+@theme {
+    /* 색상 */
+    --color-primary: #604620; /* 주 버튼 갈색 (온보딩 '시작하기') */
+    --color-cream: #fffdf8; /* 크림 배경 (입력창·동의 카드) */
+
+    /* 털 색 (woolColor: 양 만들기 > 털 색 고르기) */
+    --color-wool-cream: #f5e7c9;
+    --color-wool-pink: #f3c8c7;
+    --color-wool-yellow: #f1d98b;
+    --color-wool-mint: #b9d9c3;
+    --color-wool-sky: #bbd8de;
+    --color-wool-lavender: #cbc4db;
+
+    /* 폰트 */
+    --font-sans:
+        'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui,
+        'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    --font-batang: 'Gowun Batang', serif;
+    --font-dodum: 'Gowun Dodum', sans-serif;
+}
