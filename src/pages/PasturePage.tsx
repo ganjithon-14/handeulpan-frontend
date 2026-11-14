@@ -93,7 +93,8 @@ export function PasturePage() {
             return (
                 <main className="relative mx-auto min-h-dvh max-w-[393px] bg-cream px-6 pt-8">
                     <PastureTitle pastureId={pastureId} name={result?.pasture?.name ?? ''} />
-                    <div className="mt-6">
+                    {/* Figma: 제목 아래 18px에 배너 */}
+                    <div className="mt-[18px]">
                         <ReachOutBanner sheep={sheep} onSelect={({ id }) => setReachOutId(id)} />
                     </div>
                     <ReachOutSheet
