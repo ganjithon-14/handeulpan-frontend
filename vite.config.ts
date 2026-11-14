@@ -46,7 +46,8 @@ export default defineConfig({
                 // 미리 받아 둘 파일. 폰트(woff2)는 서브셋 조각이 수백 개(약 13MB)라 빼고,
                 // 아래 runtimeCaching으로 실제로 쓴 조각만 캐시한다.
                 // /api 응답은 캐시하지 않는다(runtimeCaching에 없음). 항상 서버의 최신 거리 값을 써야 한다.
-                globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+                // 디자인 에셋은 WebP로 넣는다(PNG 원본은 2MB 넘어 캐시 한도를 넘음).
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
                 runtimeCaching: [
                     {
                         urlPattern: ({ request }) => request.destination === 'font',
