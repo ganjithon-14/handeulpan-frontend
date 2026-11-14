@@ -3,6 +3,7 @@ import { AxiosError, type AxiosAdapter, type InternalAxiosRequestConfig } from '
 import {
     MOCK_DEVICE_TOKEN,
     MOCK_FULL_PASTURE_ID,
+    MOCK_INVITE_PASTURE_ID,
     MOCK_PASTURE_ID,
     mockPasture,
     mockPastureSummaries,
@@ -22,6 +23,7 @@ const MOCK_WRONG_PASSWORD = 'wrong1234';
  * - 토큰 없이 로그인이 필요한 API를 부르면 401 INVALID_DEVICE_TOKEN
  * - 가입 이메일이 dup@test.com이면 409 DUPLICATE_EMAIL, 로그인 비밀번호가 wrong1234면 401 INVALID_CREDENTIALS
  * - 들판 id가 'mock-full'이면 미리보기는 full, 합류는 409 PASTURE_FULL
+ * - 들판 id가 'mock-invite'·'mock-full'이면 들판 조회는 403 NOT_PASTURE_MEMBER (초대 랜딩 확인용)
  * - 내 양(id 1)에게 목도리를 보내면 400 SELF
  * - 말풍선에 '죽고싶'이 들어 있으면 위험 키워드로 처리
  */
@@ -100,7 +102,10 @@ const routes: MockRoute[] = [
         method: 'get',
         path: /^\/api\/pastures\/([^/]+)$/,
         auth: true,
-        handle: ([pastureId]) => ok({ ...mockPasture, pastureId }),
+        handle: ([pastureId]) =>
+            pastureId === MOCK_INVITE_PASTURE_ID || pastureId === MOCK_FULL_PASTURE_ID
+                ? fail(403, 'NOT_PASTURE_MEMBER', '이 들판의 멤버가 아니에요.')
+                : ok({ ...mockPasture, pastureId }),
     },
 
     // 양
