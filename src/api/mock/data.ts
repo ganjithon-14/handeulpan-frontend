@@ -38,6 +38,18 @@ export const mockPasture: Pasture = {
             wornScarf: null,
             sentScarfToday: true,
         },
+        // 목도리를 아직 안 보낸 친구: 데모 되감기로 가장자리에 보내고 목도리 보내기 성공을 확인한다
+        // (docs 예시에는 없는 값)
+        {
+            id: 3,
+            name: '구름',
+            woolColor: 'PINK',
+            distance: 'WALK',
+            mine: false,
+            bubble: null,
+            wornScarf: null,
+            sentScarfToday: false,
+        },
     ],
     myScarves: [
         { id: 31, color: 'MINT' },

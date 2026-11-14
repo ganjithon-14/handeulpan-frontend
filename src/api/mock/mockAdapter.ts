@@ -9,16 +9,37 @@ import {
     mockPastureSummaries,
     mockPreview,
 } from '@/api/mock/data';
+import type { Distance } from '@/api/types';
 
 // 가입·로그인 에러 화면 확인용 값
 const MOCK_DUPLICATE_EMAIL = 'dup@test.com';
 const MOCK_WRONG_PASSWORD = 'wrong1234';
 
+/** 목업 전용 데모 키. 실서버 키와 상관없는 값이라 코드에 둬도 된다 */
+const MOCK_DEMO_KEY = 'mock-demo';
+
+/**
+ * 양별 '마지막으로 쓰다듬은 지 며칠'. 데모 되감기를 누적해서 보여주려고 이것만 상태로 둔다.
+ * 처음 값은 docs 예시의 거리에 맞춘다. 새로고침하면 처음으로 돌아간다.
+ */
+const BASE_DAYS = { CENTER: 0, WALK: 2, EDGE: 4 } as const;
+const daysSincePat = new Map<number, number>(
+    mockPasture.sheep.map(({ id, distance }) => [id, BASE_DAYS[distance]]),
+);
+
+/** sheep.md 거리 기준: 2일 미만 CENTER, 4일 미만 WALK, 그 이상 EDGE */
+function mockDistance(sheepId: number): Distance {
+    const days = daysSincePat.get(sheepId) ?? 0;
+    if (days >= 4) return 'EDGE';
+    if (days >= 2) return 'WALK';
+    return 'CENTER';
+}
+
 /**
  * 목업 모드(VITE_USE_MOCK=true)에서 실제 서버 대신 응답을 돌려주는 axios 어댑터.
  * MSW 대신 이 방식을 쓰는 이유: 패키지가 늘지 않고, PWA 서비스워커와 부딪칠 일이 없다.
  *
- * 상태를 저장하지 않는다. 같은 요청에는 항상 docs 예시와 같은 응답이 온다.
+ * 데모 되감기로 바뀐 거리 말고는 상태를 저장하지 않는다. 같은 요청에는 docs 예시와 같은 응답이 온다.
  * 에러 화면 확인용 장치:
  * - 토큰 없이 로그인이 필요한 API를 부르면 401 INVALID_DEVICE_TOKEN
  * - 가입 이메일이 dup@test.com이면 409 DUPLICATE_EMAIL, 로그인 비밀번호가 wrong1234면 401 INVALID_CREDENTIALS
@@ -26,6 +47,7 @@ const MOCK_WRONG_PASSWORD = 'wrong1234';
  * - 들판 id가 'mock-invite'·'mock-full'이면 들판 조회는 403 NOT_PASTURE_MEMBER (초대 랜딩 확인용)
  * - 내 양(id 1)에게 목도리를 보내면 400 SELF
  * - 말풍선에 '죽고싶'이 들어 있으면 위험 키워드로 처리
+ * - 데모 되감기는 X-Demo-Key가 'mock-demo'일 때만 통과, 아니면 403 INVALID_DEMO_KEY
  */
 
 interface MockResult {
@@ -39,7 +61,11 @@ interface MockRoute {
     path: RegExp;
     /** 토큰이 필요한 API인지 */
     auth: boolean;
-    handle: (params: string[], body: Record<string, unknown>) => MockResult;
+    handle: (
+        params: string[],
+        body: Record<string, unknown>,
+        config: InternalAxiosRequestConfig,
+    ) => MockResult;
 }
 
 const ok = (data?: unknown, status = 200): MockResult => ({ status, data });
@@ -105,7 +131,14 @@ const routes: MockRoute[] = [
         handle: ([pastureId]) =>
             pastureId === MOCK_INVITE_PASTURE_ID || pastureId === MOCK_FULL_PASTURE_ID
                 ? fail(403, 'NOT_PASTURE_MEMBER', '이 들판의 멤버가 아니에요.')
-                : ok({ ...mockPasture, pastureId }),
+                : ok({
+                      ...mockPasture,
+                      pastureId,
+                      sheep: mockPasture.sheep.map((sheep) => ({
+                          ...sheep,
+                          distance: mockDistance(sheep.id),
+                      })),
+                  }),
     },
 
     // 양
@@ -113,8 +146,11 @@ const routes: MockRoute[] = [
         method: 'post',
         path: /^\/api\/sheep\/(\d+)\/pat$/,
         auth: true,
-        handle: ([sheepId]) =>
-            ok({ sheepId: Number(sheepId), distance: 'CENTER', pattedToday: true }),
+        handle: ([sheepId]) => {
+            // 서버처럼 쓰다듬으면 되감은 것도 지워지고 가운데로 돌아온다
+            daysSincePat.set(Number(sheepId), 0);
+            return ok({ sheepId: Number(sheepId), distance: 'CENTER', pattedToday: true });
+        },
     },
     {
         method: 'put',
@@ -154,6 +190,27 @@ const routes: MockRoute[] = [
                 : fail(404, 'SCARF_NOT_FOUND', '받은 목도리가 아니에요.');
         },
     },
+
+    // 데모 (토큰 대신 X-Demo-Key)
+    {
+        method: 'post',
+        path: /^\/api\/demo\/sheep\/(\d+)\/rewind$/,
+        auth: false,
+        handle: ([sheepId], body, config) => {
+            const id = Number(sheepId);
+            const days = Number(body.days);
+            if (config.headers.get('X-Demo-Key') !== MOCK_DEMO_KEY) {
+                return fail(403, 'INVALID_DEMO_KEY', '데모 키가 올바르지 않아요.');
+            }
+            if (!daysSincePat.has(id)) return fail(404, 'SHEEP_NOT_FOUND', '없는 양이에요.');
+            if (!Number.isInteger(days) || days < 1 || days > 30) {
+                return fail(400, 'VALIDATION_FAILED', 'days는 1~30이어야 해요.');
+            }
+            // 서버 Sheep.rewind()처럼 지금 기준이 아니라 지난 쓰다듬기에서 더 민다 (누적)
+            daysSincePat.set(id, (daysSincePat.get(id) ?? 0) + days);
+            return ok({ sheepId: id, distance: mockDistance(id) });
+        },
+    },
 ];
 
 /** 실제 네트워크처럼 보이게 하는 지연 (로딩 화면 확인용) */
@@ -181,7 +238,7 @@ function resolve(config: InternalAxiosRequestConfig): MockResult {
         if (route.auth && !config.headers.get('X-Device-Token')) {
             return fail(401, 'INVALID_DEVICE_TOKEN', '로그인이 필요해요.');
         }
-        return route.handle(match.slice(1), parseBody(config.data));
+        return route.handle(match.slice(1), parseBody(config.data), config);
     }
 
     return fail(404, 'NOT_FOUND', `목업에 없는 요청이에요: ${method.toUpperCase()} ${path}`);

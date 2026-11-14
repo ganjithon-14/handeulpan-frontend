@@ -140,3 +140,10 @@ export interface SendScarfResponse {
 export interface WearScarfResponse {
     wornScarf: WoolColor | null;
 }
+
+// ── 데모 (demo.md) ──
+
+export interface RewindResponse {
+    sheepId: number;
+    distance: Distance;
+}
