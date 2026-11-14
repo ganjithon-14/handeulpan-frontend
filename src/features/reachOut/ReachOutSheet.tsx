@@ -77,9 +77,9 @@ export function ReachOutSheet({
                         {sheep.name}에게 다가가기
                     </h2>
 
-                    {/* Figma는 크림 양 옆모습 에셋. 친구 털 색을 따라야 해서 6색이 있는 기본 포즈를 쓴다 */}
+                    {/* 멀어짐(가장자리) 포즈, 친구 털 색 (Figma Design System 4:5) */}
                     <img
-                        src={`/assets/sheep-${sheep.woolColor.toLowerCase()}.webp`}
+                        src={`/assets/sheep-${sheep.woolColor.toLowerCase()}-edge.webp`}
                         alt=""
                         width={150}
                         height={118}
