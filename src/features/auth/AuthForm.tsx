@@ -4,6 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { login, signup } from '@/api/auth';
 import { ApiError, ERROR_CODE } from '@/api/errors';
 import { readNext } from '@/features/auth/next';
+import { FieldLabel, INPUT, INPUT_BOX } from '@/shared/ui/Field';
+import { PageHeader } from '@/shared/ui/PageHeader';
 import { useAuthStore } from '@/stores/authStore';
 
 type AuthMode = 'signup' | 'login';
@@ -98,31 +100,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         }
     }
 
-    // 앞 화면이 있으면 그리로, 링크로 바로 들어왔으면(앞 화면 없음) 온보딩으로.
-    // react-router가 history.state.idx에 이 앱 안에서 몇 번째 화면인지 적어 둔다.
-    function goBack() {
-        const index = (window.history.state as { idx?: number } | null)?.idx ?? 0;
-        if (index > 0) navigate(-1);
-        else navigate('/onboarding', { replace: true });
-    }
-
     // Figma '들판 만들기'처럼 칸을 다 채워야 버튼이 갈색이 된다
     const filled = email.trim() !== '' && password !== '';
 
     return (
         <main className="mx-auto flex min-h-dvh max-w-[393px] flex-col bg-white px-6 pb-[max(env(safe-area-inset-bottom),12px)]">
-            {/* 상단: Figma '들판 만들기' 헤더 (뒤로 가기 + 가운데 제목) */}
-            <header className="relative mt-5 flex h-14 items-center justify-center">
-                <button
-                    type="button"
-                    onClick={goBack}
-                    aria-label="뒤로 가기"
-                    className="absolute left-[-17px] flex size-11 items-center justify-center"
-                >
-                    <img src="/assets/icon-back.svg" alt="" width={10} height={18} />
-                </button>
-                <h1 className="text-xl leading-7 font-semibold text-black">{copy.title}</h1>
-            </header>
+            <PageHeader title={copy.title} fallback="/onboarding" />
 
             <form onSubmit={handleSubmit} noValidate className="mt-8 flex flex-1 flex-col">
                 <div className="flex flex-col gap-[30px]">
@@ -196,13 +179,6 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     );
 }
 
-// Figma '들판 만들기' 입력칸: 크림 배경, 연갈색 테두리, 모서리 15, 높이 55
-const INPUT_BOX =
-    'flex items-center rounded-[15px] border border-line bg-cream px-[15px] focus-within:border-primary';
-// 글자는 16px: 14px(Figma)면 iOS Safari가 칸을 누를 때 화면을 확대해 버린다. 안내문만 Figma대로 14px
-const INPUT =
-    'h-[55px] w-full min-w-0 bg-transparent font-dodum text-base outline-none placeholder:text-sm placeholder:text-placeholder';
-
 /**
  * 비밀번호 보기 버튼의 눈 아이콘. 가려져 있으면 눈, 보이는 중이면 빗금 친 눈.
  * 아이콘 하나 때문에 패키지를 넣지 않으려고 SVG를 직접 둔다 (Figma에 없는 아이콘).
@@ -224,18 +200,5 @@ function EyeIcon({ off }: { off: boolean }) {
             <circle cx="12" cy="12" r="3" />
             {off && <path d="M3 3l18 18" />}
         </svg>
-    );
-}
-
-/** Figma '로고+텍스트': 꽃 아이콘 + 칸 이름 */
-function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
-    return (
-        <label
-            htmlFor={htmlFor}
-            className="flex items-center gap-1.5 text-base leading-none font-medium text-black"
-        >
-            <img src="/assets/icon-flower.webp" alt="" className="size-[18px]" />
-            {children}
-        </label>
     );
 }
