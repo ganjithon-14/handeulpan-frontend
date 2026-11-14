@@ -51,6 +51,15 @@ export const mockPastureSummaries: PastureSummary[] = [
         pattedToday: true,
         edgeFriendNames: ['콩이'],
     },
+    // 두 번째 들판: 최근 들판으로 가기·들판 전환 확인용 (docs 예시에는 없는 값)
+    {
+        pastureId: 'mock-family',
+        name: '우리 가족',
+        mySheepId: 1,
+        myDistance: 'WALK',
+        pattedToday: false,
+        edgeFriendNames: [],
+    },
 ];
 
 export function mockPreview(pastureId: string): PasturePreview {
