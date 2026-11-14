@@ -14,6 +14,9 @@
     /* 색상 */
     --color-primary: #604620; /* 주 버튼 갈색 (온보딩 '시작하기') */
     --color-cream: #fffdf8; /* 크림 배경 (입력창·동의 카드) */
+    --color-primary-disabled: #b9aa98; /* 주 버튼 비활성 (들판 만들기 '들판 만들기' 버튼) */
+    --color-line: #e8dccb; /* 입력창 테두리 */
+    --color-placeholder: #b0b0a7; /* 입력창 안내문 */
 
     /* 털 색 (woolColor: 양 만들기 > 털 색 고르기) */
     --color-wool-cream: #f5e7c9;

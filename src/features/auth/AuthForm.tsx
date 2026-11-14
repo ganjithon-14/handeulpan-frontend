@@ -98,69 +98,144 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         }
     }
 
-    return (
-        <main className="mx-auto flex min-h-dvh max-w-[393px] flex-col bg-cream px-6 pt-20 pb-10">
-            <h1 className="font-batang text-2xl font-bold text-primary">{copy.title}</h1>
+    // 앞 화면이 있으면 그리로, 링크로 바로 들어왔으면(앞 화면 없음) 온보딩으로.
+    // react-router가 history.state.idx에 이 앱 안에서 몇 번째 화면인지 적어 둔다.
+    function goBack() {
+        const index = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+        if (index > 0) navigate(-1);
+        else navigate('/onboarding', { replace: true });
+    }
 
-            <form onSubmit={handleSubmit} noValidate className="mt-10 flex flex-1 flex-col gap-4">
-                <label className="flex flex-col gap-2 text-sm text-primary">
-                    이메일
-                    <input
-                        type="email"
-                        autoComplete="email"
-                        value={email}
-                        onChange={(event) => setEmail(event.target.value)}
-                        className="rounded-xl border border-primary/20 bg-white px-4 py-3 text-base outline-none focus:border-primary"
-                    />
-                </label>
-                <label className="flex flex-col gap-2 text-sm text-primary">
-                    비밀번호
-                    {/* 보기 버튼: 한글 자판으로 잘못 친 걸 확인할 수 있게. 비밀번호 찾기가 없어서 특히 중요하다 */}
-                    <div className="relative">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                            value={password}
-                            onChange={(event) => setPassword(event.target.value)}
-                            className="w-full rounded-xl border border-primary/20 bg-white py-3 pr-16 pl-4 text-base outline-none focus:border-primary"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword((shown) => !shown)}
-                            aria-pressed={showPassword}
-                            className="absolute inset-y-0 right-0 px-4 text-sm text-primary"
-                        >
-                            {showPassword ? '숨기기' : '보기'}
-                        </button>
+    // Figma '들판 만들기'처럼 칸을 다 채워야 버튼이 갈색이 된다
+    const filled = email.trim() !== '' && password !== '';
+
+    return (
+        <main className="mx-auto flex min-h-dvh max-w-[393px] flex-col bg-white px-6 pb-[max(env(safe-area-inset-bottom),12px)]">
+            {/* 상단: Figma '들판 만들기' 헤더 (뒤로 가기 + 가운데 제목) */}
+            <header className="relative mt-5 flex h-14 items-center justify-center">
+                <button
+                    type="button"
+                    onClick={goBack}
+                    aria-label="뒤로 가기"
+                    className="absolute left-[-17px] flex size-11 items-center justify-center"
+                >
+                    <img src="/assets/icon-back.svg" alt="" width={10} height={18} />
+                </button>
+                <h1 className="text-xl leading-7 font-semibold text-black">{copy.title}</h1>
+            </header>
+
+            <form onSubmit={handleSubmit} noValidate className="mt-8 flex flex-1 flex-col">
+                <div className="flex flex-col gap-[30px]">
+                    <div className="flex flex-col gap-4">
+                        <FieldLabel htmlFor="auth-email">이메일</FieldLabel>
+                        <div className={INPUT_BOX}>
+                            <input
+                                id="auth-email"
+                                type="email"
+                                autoComplete="email"
+                                placeholder="example@email.com"
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                className={INPUT}
+                            />
+                        </div>
                     </div>
-                </label>
-                {mode === 'signup' && (
-                    <p className="text-xs text-primary/60">
-                        비밀번호를 잊으면 찾을 수 없어요. 꼭 기억해 주세요.
-                    </p>
-                )}
+
+                    <div className="flex flex-col gap-4">
+                        <FieldLabel htmlFor="auth-password">비밀번호</FieldLabel>
+                        {/* 눈 버튼: 한글 자판으로 잘못 친 걸 확인할 수 있게. 비밀번호 찾기가 없어서 특히 중요하다 */}
+                        <div className={INPUT_BOX}>
+                            <input
+                                id="auth-password"
+                                type={showPassword ? 'text' : 'password'}
+                                autoComplete={
+                                    mode === 'signup' ? 'new-password' : 'current-password'
+                                }
+                                placeholder={
+                                    mode === 'signup' ? '영문·숫자·특수문자 8자 이상' : undefined
+                                }
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
+                                className={INPUT}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword((shown) => !shown)}
+                                aria-label="비밀번호 보기"
+                                aria-pressed={showPassword}
+                                className="-mr-[15px] flex h-[55px] shrink-0 items-center px-[15px] text-primary/70"
+                            >
+                                <EyeIcon off={showPassword} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 {error && (
-                    <p role="alert" className="text-sm text-red-700">
+                    <p role="alert" className="mt-6 text-sm text-red-700">
                         {error}
                     </p>
                 )}
 
                 <button
                     type="submit"
-                    disabled={submitting}
-                    className="mt-auto rounded-xl bg-primary py-4 font-bold text-white disabled:opacity-50"
+                    disabled={!filled || submitting}
+                    className="mt-auto h-14 rounded-[14px] bg-primary text-base font-bold tracking-[-0.2px] text-white disabled:bg-primary-disabled"
                 >
                     {submitting ? '잠시만요…' : copy.submit}
                 </button>
             </form>
 
-            <p className="mt-4 text-center text-sm text-primary/70">
+            <p className="py-3 text-center text-sm text-primary/80">
                 {copy.switchText} {/* 오가는 동안에도 돌아갈 경로(next)를 유지한다 */}
                 <Link to={copy.switchPath + search} replace className="font-bold underline">
                     {copy.switchLabel}
                 </Link>
             </p>
         </main>
+    );
+}
+
+// Figma '들판 만들기' 입력칸: 크림 배경, 연갈색 테두리, 모서리 15, 높이 55
+const INPUT_BOX =
+    'flex items-center rounded-[15px] border border-line bg-cream px-[15px] focus-within:border-primary';
+// 글자는 16px: 14px(Figma)면 iOS Safari가 칸을 누를 때 화면을 확대해 버린다. 안내문만 Figma대로 14px
+const INPUT =
+    'h-[55px] w-full min-w-0 bg-transparent font-dodum text-base outline-none placeholder:text-sm placeholder:text-placeholder';
+
+/**
+ * 비밀번호 보기 버튼의 눈 아이콘. 가려져 있으면 눈, 보이는 중이면 빗금 친 눈.
+ * 아이콘 하나 때문에 패키지를 넣지 않으려고 SVG를 직접 둔다 (Figma에 없는 아이콘).
+ */
+function EyeIcon({ off }: { off: boolean }) {
+    return (
+        <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+            <circle cx="12" cy="12" r="3" />
+            {off && <path d="M3 3l18 18" />}
+        </svg>
+    );
+}
+
+/** Figma '로고+텍스트': 꽃 아이콘 + 칸 이름 */
+function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
+    return (
+        <label
+            htmlFor={htmlFor}
+            className="flex items-center gap-1.5 text-base leading-none font-medium text-black"
+        >
+            <img src="/assets/icon-flower.webp" alt="" className="size-[18px]" />
+            {children}
+        </label>
     );
 }
