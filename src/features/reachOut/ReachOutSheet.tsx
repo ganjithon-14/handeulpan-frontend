@@ -76,16 +76,8 @@ export function ReachOutSheet({
                     />
 
                     <div className="relative mt-[30px]">
-                        {/* 보내기·복사 결과 모두 친구 초대 시트처럼 양과 아래 칸 사이에 띄운다 */}
-                        <SheetNotice
-                            text={
-                                (copyNotice &&
-                                    (copyNotice === 'failed'
-                                        ? '복사가 안 됐어요. 문장을 길게 눌러 복사해 주세요.'
-                                        : '문장을 복사했어요')) ||
-                                sendNotice.notice
-                            }
-                        />
+                        {/* 보내기 결과는 친구 초대 시트처럼 양과 버튼 사이에 */}
+                        <SheetNotice text={sendNotice.notice} />
                         <button
                             type="button"
                             disabled={sending || sheep.sentScarfToday}
@@ -106,7 +98,17 @@ export function ReachOutSheet({
                         <span aria-hidden className="h-px flex-1 bg-primary" />
                     </div>
 
-                    <div className="mt-[11px]">
+                    <div className="relative mt-[11px]">
+                        {/* 복사 결과는 마지막 문장 칸 아래에 */}
+                        <SheetNotice
+                            below
+                            text={
+                                copyNotice &&
+                                (copyNotice === 'failed'
+                                    ? '복사가 안 됐어요. 문장을 길게 눌러 복사해 주세요.'
+                                    : '문장을 복사했어요')
+                            }
+                        />
                         <ul className="flex flex-col gap-2">
                             {GREETINGS.map((text) => (
                                 <li
