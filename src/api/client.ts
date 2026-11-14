@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { ERROR_CODE, toApiError } from '@/api/errors';
 import { mockAdapter } from '@/api/mock/mockAdapter';
+import { nextQuery } from '@/features/auth/next';
 import { useAuthStore } from '@/stores/authStore';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
@@ -36,10 +37,12 @@ apiClient.interceptors.response.use(
 
         // 토큰이 없거나 무효(다른 기기에서 로그인 등): 토큰을 지우고 로그인 화면으로.
         // 인터셉터는 React 밖이라 라우터 훅을 못 쓰므로 주소를 직접 바꾼다.
+        // 다시 로그인하면 보던 화면으로 돌아오도록 지금 경로를 next로 넘긴다.
         if (apiError.code === ERROR_CODE.INVALID_DEVICE_TOKEN) {
             useAuthStore.getState().clearToken();
-            if (window.location.pathname !== '/login') {
-                window.location.replace('/login');
+            const { pathname, search } = window.location;
+            if (pathname !== '/login' && pathname !== '/signup') {
+                window.location.replace(`/login${nextQuery(pathname, search)}`);
             }
         }
 

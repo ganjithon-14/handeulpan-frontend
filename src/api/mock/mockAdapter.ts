@@ -9,6 +9,10 @@ import {
     mockPreview,
 } from '@/api/mock/data';
 
+// 가입·로그인 에러 화면 확인용 값
+const MOCK_DUPLICATE_EMAIL = 'dup@test.com';
+const MOCK_WRONG_PASSWORD = 'wrong1234';
+
 /**
  * 목업 모드(VITE_USE_MOCK=true)에서 실제 서버 대신 응답을 돌려주는 axios 어댑터.
  * MSW 대신 이 방식을 쓰는 이유: 패키지가 늘지 않고, PWA 서비스워커와 부딪칠 일이 없다.
@@ -16,6 +20,7 @@ import {
  * 상태를 저장하지 않는다. 같은 요청에는 항상 docs 예시와 같은 응답이 온다.
  * 에러 화면 확인용 장치:
  * - 토큰 없이 로그인이 필요한 API를 부르면 401 INVALID_DEVICE_TOKEN
+ * - 가입 이메일이 dup@test.com이면 409 DUPLICATE_EMAIL, 로그인 비밀번호가 wrong1234면 401 INVALID_CREDENTIALS
  * - 들판 id가 'mock-full'이면 미리보기는 full, 합류는 409 PASTURE_FULL
  * - 내 양(id 1)에게 목도리를 보내면 400 SELF
  * - 말풍선에 '죽고싶'이 들어 있으면 위험 키워드로 처리
@@ -47,13 +52,19 @@ const routes: MockRoute[] = [
         method: 'post',
         path: /^\/api\/auth\/signup$/,
         auth: false,
-        handle: () => ok({ deviceToken: MOCK_DEVICE_TOKEN }, 201),
+        handle: (_params, body) =>
+            body.email === MOCK_DUPLICATE_EMAIL
+                ? fail(409, 'DUPLICATE_EMAIL', '이미 가입된 이메일입니다.')
+                : ok({ deviceToken: MOCK_DEVICE_TOKEN }, 201),
     },
     {
         method: 'post',
         path: /^\/api\/auth\/login$/,
         auth: false,
-        handle: () => ok({ deviceToken: MOCK_DEVICE_TOKEN }),
+        handle: (_params, body) =>
+            body.password === MOCK_WRONG_PASSWORD
+                ? fail(401, 'INVALID_CREDENTIALS', '이메일 또는 비밀번호가 올바르지 않습니다.')
+                : ok({ deviceToken: MOCK_DEVICE_TOKEN }),
     },
     { method: 'post', path: /^\/api\/auth\/logout$/, auth: true, handle: () => ok(undefined, 204) },
 

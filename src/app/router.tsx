@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 
+import { RequireAuth } from '@/features/auth/RequireAuth';
 import { HomePage } from '@/pages/HomePage';
 import { JoinPage } from '@/pages/JoinPage';
 import { LoginPage } from '@/pages/LoginPage';
@@ -18,8 +19,23 @@ export const router = createBrowserRouter([
     { path: '/onboarding', element: <OnboardingPage /> },
     { path: '/signup', element: <SignupPage /> },
     { path: '/login', element: <LoginPage /> },
-    { path: '/new', element: <NewPasturePage /> },
+    {
+        path: '/new',
+        element: (
+            <RequireAuth>
+                <NewPasturePage />
+            </RequireAuth>
+        ),
+    },
+    // 들판 주소는 토큰 없이도 연다: 멤버가 아니면 초대 미리보기(토큰 불필요)를 보여주기 때문
     { path: '/p/:pastureId', element: <PasturePage /> },
-    { path: '/p/:pastureId/join', element: <JoinPage /> },
+    {
+        path: '/p/:pastureId/join',
+        element: (
+            <RequireAuth>
+                <JoinPage />
+            </RequireAuth>
+        ),
+    },
     { path: '*', element: <NotFoundPage /> },
 ]);
