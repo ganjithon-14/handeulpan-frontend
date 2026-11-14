@@ -7,6 +7,9 @@ export const MOCK_PASTURE_ID = 'o76WTwo0Bc2ygE3Hpx9kkQ';
 /** 이 id로 미리보기·합류하면 '가득 찬 들판'을 흉내 낸다 (합류 화면 확인용) */
 export const MOCK_FULL_PASTURE_ID = 'mock-full';
 
+/** 이 id는 내가 멤버가 아닌 들판이다. 토큰이 있어도 초대 랜딩이 보인다 */
+export const MOCK_INVITE_PASTURE_ID = 'mock-invite';
+
 export const MOCK_DEVICE_TOKEN = '3f1c7a0e-6c1b-4a8e-9a63-0c1f5d2b7e11';
 
 export const mockPasture: Pasture = {

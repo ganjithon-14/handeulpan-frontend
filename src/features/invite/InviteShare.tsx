@@ -1,25 +1,13 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
+
+import { useInviteLink } from '@/features/invite/useInviteLink';
 
 /**
  * 들판을 만든 뒤 보는 초대 링크 공유 화면 (Figma '링크 공유 페이지' 67:2030).
  * 온보딩처럼 Figma 고정 좌표 대신 세로 배치: 문구 위, 양 가운데, 버튼 아래.
  */
 export function InviteShare({ pastureId }: { pastureId: string }) {
-    const inviteUrl = `${window.location.origin}/p/${pastureId}`;
-    const [copied, setCopied] = useState(false);
-    const [copyFailed, setCopyFailed] = useState(false);
-
-    async function copyLink() {
-        try {
-            // http 주소(폰으로 연 개발 서버 등)에서는 navigator.clipboard가 없어서 여기서 throw된다
-            await navigator.clipboard.writeText(inviteUrl);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch {
-            setCopyFailed(true);
-        }
-    }
+    const { inviteUrl, copied, copyFailed, copyLink } = useInviteLink(pastureId);
 
     return (
         <main className="relative mx-auto min-h-dvh max-w-[393px] overflow-hidden">
