@@ -3,6 +3,9 @@ import { useParams } from 'react-router';
 
 import { ERROR_CODE, toApiError } from '@/api/errors';
 import { getPasture } from '@/api/pastures';
+import type { Pasture } from '@/api/types';
+import { FieldTabBar } from '@/features/fieldNav/FieldTabBar';
+import { PastureTitle } from '@/features/fieldNav/PastureTitle';
 import { InviteLanding } from '@/features/invite/InviteLanding';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { PagePlaceholder } from '@/pages/PagePlaceholder';
@@ -21,7 +24,11 @@ export function PasturePage() {
     const hasToken = useAuthStore((state) => Boolean(state.deviceToken));
     const setLastPastureId = usePastureStore((state) => state.setLastPastureId);
     // 어느 들판의 결과인지 같이 둬서, 들판을 바꾸면 새 결과가 올 때까지 loading이 된다
-    const [result, setResult] = useState<{ pastureId: string; view: View } | null>(null);
+    const [result, setResult] = useState<{
+        pastureId: string;
+        view: View;
+        pasture?: Pasture;
+    } | null>(null);
 
     // 토큰이 없으면 멤버일 수 없으니 조회 없이 바로 초대 랜딩
     let view: View = 'guest';
@@ -29,12 +36,13 @@ export function PasturePage() {
 
     useEffect(() => {
         if (!hasToken) return;
-        const done = (next: View) => setResult({ pastureId, view: next });
+        const done = (next: View, pasture?: Pasture) =>
+            setResult({ pastureId, view: next, pasture });
         getPasture(pastureId)
-            .then(() => {
+            .then((pasture) => {
                 // 다음에 `/`로 들어오면 이 들판으로 오게 기억한다
                 setLastPastureId(pastureId);
-                done('member');
+                done('member', pasture);
             })
             .catch((caught) => {
                 const { code } = toApiError(caught);
@@ -56,11 +64,12 @@ export function PasturePage() {
                 </PagePlaceholder>
             );
         case 'member':
-            // TODO(FE-A): 들판 메인 화면
+            // TODO(FE-A): 들판 메인 화면. 위 제목과 아래 탭바는 FE-B 컴포넌트를 그대로 붙인다
             return (
-                <PagePlaceholder title="들판">
-                    <p className="text-sm text-primary">{pastureId}</p>
-                </PagePlaceholder>
+                <main className="relative mx-auto min-h-dvh max-w-[393px] bg-cream px-6 pt-8">
+                    <PastureTitle pastureId={pastureId} name={result?.pasture?.name ?? ''} />
+                    <FieldTabBar pastureId={pastureId} />
+                </main>
             );
         default:
             return <main className="min-h-dvh bg-cream" />;
